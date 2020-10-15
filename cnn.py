@@ -1,33 +1,39 @@
 # Recreating CNN self, with description and explanations
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras.layers  as KL
-import tensorflow.keras.models  as KM
+from tensorflow import keras
+from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 
-# KL = keras layers, KM = keras models
-
 # Import Dataset
-# Gives 2 outputs as 2D vectors
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-# dividing by 255 normalises values (between 0 & 1)
+# dividing by 255 rescale values (between 0 & 1)
 x_train, x_test = x_train / 255.0, x_test / 255.0
 # Expand dims -> insert new axis at -1 position for both
+#
 x_train, x_test = np.expand_dims(x_train, axis=-1), np.expand_dims(x_test, axis=-1)
 
 # CNN Model
 # images are 28x28 and 1 number representing greyscale
-model = KM.Sequential()
-# Convolutional base - common pattern of Conv2D and MaxPooling2D layers
-model.add(KL.Conv2D(28, (3, 3), activation='relu', input_shape=(28, 28, 1)))
-model.add(KL.MaxPooling2D((2, 2)))
-model.add(KL.Conv2D(56, (3, 3), activation='relu'))
-model.add(KL.MaxPooling2D((2, 2)))
-model.add(KL.Conv2D(56, (3, 3), activation='relu'))
+# Sequential model for simple stack of layers -> each layer here has 1 i/p & o/p tensor
+model = keras.Sequential(
+    [
+        # Convolutional base - common pattern of Conv2D and MaxPooling2D layers
+        # Conv2D - creates convolution kernal. matrix for performing image processing task
+        # 28 filters -
+        # Kernal Size - 3x3 size of 2d conv window
+        layers.Conv2D(28, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(56, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(56, (3, 3), activation='relu'),
 
-model.add(KL.Flatten())
-model.add(KL.Dense(56, activation='relu'))
-model.add(KL.Dense(10))
+        layers.Flatten(),
+        layers.Dense(56, activation='relu'),
+        layers.Dense(10)
+    ]
+)
+
 model.summary()
 
 model.compile(optimizer='adam',
